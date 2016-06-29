@@ -1,11 +1,10 @@
 module ActiveHook
   module Server
-    byebug
     class Send
       REQUEST_HEADERS = {
         "Content-Type" => "application/json",
         "Accept"       => "application/json",
-        "User-Agent"   => "ActiveHook/"
+        "User-Agent"   => "ActiveHook/#{VERSION}"
       }.freeze
 
       attr_accessor :hook

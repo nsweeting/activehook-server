@@ -1,4 +1,4 @@
-module Activehook
+module ActiveHook
   module Server
     VERSION = '0.1.0'
     CODENAME = 'Fat Sparrow'
