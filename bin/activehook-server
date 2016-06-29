@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'activehook/server'
+
+server = ActiveHook::Server::Launcher.new(ARGV)
+server.start
