@@ -4,7 +4,7 @@ module ActiveHook
       REQUEST_HEADERS = {
         "Content-Type" => "application/json",
         "Accept"       => "application/json",
-        "User-Agent"   => "ActiveHook/#{VERSION}"
+        "User-Agent"   => "ActiveHook/#{ActiveHook::Server::VERSION}"
       }.freeze
 
       attr_accessor :hook

@@ -19,7 +19,7 @@ module ActiveHook
 
       def start_message
         ActiveHook::Server.log.info('ActiveHook Server starting!')
-        ActiveHook::Server.log.info("* Version #{VERSION}, codename: #{CODENAME}")
+        ActiveHook::Server.log.info("* Version #{ActiveHook::Server::VERSION}, codename: #{ActiveHook::Server::CODENAME}")
       end
 
       # Parses the arguments passed through the command line.
