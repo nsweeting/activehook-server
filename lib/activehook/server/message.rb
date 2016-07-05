@@ -1,6 +1,6 @@
 module ActiveHook
   module Server
-    class Hook
+    class Message
       attr_accessor :token, :uri, :id, :key, :retry_max, :retry_time, :created_at
       attr_reader :errors, :payload
 
@@ -16,7 +16,7 @@ module ActiveHook
       end
 
       def save!
-        raise Errors::Hook, 'Hook is invalid' unless valid?
+        raise Errors::Message, 'Message is invalid' unless valid?
         save_hook
       end
 
@@ -58,10 +58,9 @@ module ActiveHook
       end
 
       def final_payload
-        { hook_id: @id,
-          hook_key: @key,
-          hook_time: @created_at,
-          hook_signature: ActiveHook.config.signature_header,
+        { id: @id,
+          key: @key,
+          created_at: @created_at,
           payload: @payload }.to_json
       end
 
@@ -76,7 +75,7 @@ module ActiveHook
 
       private
 
-      def save_hook
+      def save_message
         ActiveHook::Server.redis.with do |conn|
           @id = conn.incr('ah:total_queued')
           conn.lpush('ah:queue', to_json)

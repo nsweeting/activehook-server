@@ -1,7 +1,7 @@
 module ActiveHook
   module Server
-    # The Queue object processes any hooks that are queued into our Redis server.
-    # It will perform a 'blocking pop' on our hook list until one is added.
+    # The Queue object processes any messages that are queued into our Redis server.
+    # It will perform a 'blocking pop' on our message list until one is added.
     #
     class Queue
       def initialize
@@ -12,8 +12,8 @@ module ActiveHook
       #
       def start
         until @done
-          json = retrieve_hook
-          HookRunner.new(json) if json
+          json = retrieve_message
+          MessageRunner.new(json) if json
         end
       end
 
@@ -27,35 +27,36 @@ module ActiveHook
 
       # Performs a 'blocking pop' on our redis queue list.
       #
-      def retrieve_hook
+      def retrieve_message
         json = ActiveHook::Server.redis.with { |c| c.brpop('ah:queue') }
         json.last if json
       end
     end
 
-    class HookRunner
+    class MessageRunner
       def initialize(json)
-        @hook = Hook.new(JSON.parse(json))
-        @post = Send.new(hook: @hook)
+        @message = Message.new(JSON.parse(json))
+        @post = Send.new(message: @message)
         start
       end
 
       def start
         @post.start
         ActiveHook::Server.redis.with do |conn|
-          @post.success? ? hook_success(conn) : hook_failed(conn)
+          @post.success? ? message_success(conn) : message_failed(conn)
         end
       end
 
       private
 
-      def hook_success(conn)
+      def message_success(conn)
         conn.incr('ah:total_success')
       end
 
-      def hook_failed(conn)
-        conn.zadd('ah:retry', @hook.retry_at, @hook.to_json) if @hook.retry?
+      def message_failed(conn)
         conn.incr('ah:total_failed')
+        return unless @message.retry?
+        conn.zadd('ah:retry', @message.retry_at, @message.to_json)
       end
     end
   end

@@ -7,7 +7,7 @@ module ActiveHook
         "User-Agent"   => "ActiveHook/#{ActiveHook::Server::VERSION}"
       }.freeze
 
-      attr_accessor :hook
+      attr_accessor :message
       attr_reader :response_time, :status, :response
 
       def initialize(options = {})
@@ -15,12 +15,12 @@ module ActiveHook
       end
 
       def start
-        @status = post_hook
+        @status = post_message
         log_status
       end
 
       def uri
-        @uri ||= URI.parse(@hook.uri)
+        @uri ||= URI.parse(@message.uri)
       end
 
       def success?
@@ -29,10 +29,10 @@ module ActiveHook
 
       private
 
-      def post_hook
+      def post_message
         http = Net::HTTP.new(uri.host, uri.port)
         measure_response_time do
-          @response = http.post(uri.path, @hook.final_payload, final_headers)
+          @response = http.post(uri.path, @message.final_payload, final_headers)
         end
         response_status(@response)
       rescue
@@ -67,7 +67,7 @@ module ActiveHook
       end
 
       def final_headers
-        { "X-Hook-Signature" => @hook.signature }.merge(REQUEST_HEADERS)
+        { "X-Hook-Signature" => @message.signature }.merge(REQUEST_HEADERS)
       end
     end
   end
