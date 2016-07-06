@@ -29,9 +29,9 @@ module ActiveHook
       #
       def shutdown
         unless @forks.empty?
-          @forks.each { |w| Process.kill('SIGINT', w[:pid].to_i) }
+          @forks.each { |w| Process.kill('SIGTERM', w[:pid].to_i) }
         end
-        Process.kill('SIGINT', @master)
+        Process.kill('SIGTERM', @master)
       end
 
       private
