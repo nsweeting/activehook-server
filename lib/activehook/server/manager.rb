@@ -10,6 +10,7 @@ module ActiveHook
       def initialize(options = {})
         options.each { |key, value| send("#{key}=", value) }
         @master = Process.pid
+        @forks = []
         at_exit { shutdown }
       end
 
@@ -27,7 +28,9 @@ module ActiveHook
       # Shutsdown our Worker processes.
       #
       def shutdown
-        @forks.each { |w| Process.kill('SIGINT', w[:pid].to_i) }
+        unless @forks.empty?
+          @forks.each { |w| Process.kill('SIGINT', w[:pid].to_i) }
+        end
         Process.kill('SIGINT', @master)
       end
 
@@ -36,7 +39,6 @@ module ActiveHook
       # Create the specified number of workers and starts them
       #
       def create_workers
-        @forks = []
         @workers.times do |id|
           pid = fork { Worker.new(@options.merge(id: id)).start }
           @forks << { id: id, pid: pid }
@@ -54,9 +56,28 @@ module ActiveHook
       # connection pool by pinging Redis.
       #
       def validate!
-        raise Errors::Server, 'Cound not connect to Redis.' unless ActiveHook::Server.redis.with { |c| c.ping && c.quit }
-        raise Errors::Server, 'Workers must be an Integer.' unless @workers.is_a?(Integer)
-        raise Errors::Server, 'Options must be a Hash.' unless @options.is_a?(Hash)
+        validate_redis
+        validate_workers
+        validate_options
+      end
+
+      def validate_redis
+        ActiveHook::Server.redis.with { |c| c.ping && c.quit }
+      rescue
+        msg = 'Cound not connect to Redis.'
+        ActiveHook::Server.log.err(msg)
+        raise Errors::Manager, msg
+      end
+
+      def validate_workers
+        return if @workers.is_a?(Integer)
+        msg = 'Workers must be an Integer.'
+        raise Errors::Manager, msg
+      end
+
+      def validate_options
+        return if @options.is_a?(Hash)
+        raise Errors::Manager, 'Options must be a Hash.'
       end
     end
   end
