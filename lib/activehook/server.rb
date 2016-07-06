@@ -1,4 +1,3 @@
-require 'byebug'
 require 'redis'
 require 'json'
 require 'uri'
