@@ -48,8 +48,8 @@ module ActiveHook
       # Information about the start process
       #
       def start_messages
-        ActiveHook::Server.log.info("* Workers: #{@workers}")
-        ActiveHook::Server.log.info("* Threads: #{@options[:queue_threads]} queue, #{@options[:retry_threads]} retry")
+        Server.log.info("* Workers: #{@workers}")
+        Server.log.info("* Threads: #{@options[:queue_threads]} queue, #{@options[:retry_threads]} retry")
       end
 
       # Validates our data before starting our Workers. Also instantiates our
@@ -62,17 +62,14 @@ module ActiveHook
       end
 
       def validate_redis
-        ActiveHook::Server.redis.with { |c| c.ping && c.quit }
+        Server.redis.with { |c| c.ping && c.quit }
       rescue
-        msg = 'Cound not connect to Redis.'
-        ActiveHook::Server.log.err(msg)
-        raise Errors::Manager, msg
+        raise Errors::Manager, 'Cound not connect to Redis.'
       end
 
       def validate_workers
         return if @workers.is_a?(Integer)
-        msg = 'Workers must be an Integer.'
-        raise Errors::Manager, msg
+        raise Errors::Manager, 'Workers must be an Integer.'
       end
 
       def validate_options

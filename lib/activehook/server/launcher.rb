@@ -18,8 +18,8 @@ module ActiveHook
       private
 
       def start_message
-        ActiveHook::Server.log.info('ActiveHook Server starting!')
-        ActiveHook::Server.log.info("* Version #{ActiveHook::Server::VERSION}, codename: #{ActiveHook::Server::CODENAME}")
+        Server.log.info('ActiveHook Server starting!')
+        Server.log.info("* Version #{Server::VERSION}, codename: #{Server::CODENAME}")
       end
 
       # Parses the arguments passed through the command line.
@@ -30,7 +30,7 @@ module ActiveHook
 
           o.on('-c', '--config PATH', 'Load PATH for config file') do |arg|
             load(arg)
-            ActiveHook::Server.log.info("* Server config:  #{arg}")
+            Server.log.info("* Server config:  #{arg}")
           end
 
           o.on('-h', '--help', 'Prints this help') { puts o && exit }
@@ -39,7 +39,7 @@ module ActiveHook
       end
 
       def boot_manager
-        manager = Manager.new(ActiveHook::Server.config.manager_options)
+        manager = Manager.new(Server.config.manager_options)
         manager.start
       end
     end

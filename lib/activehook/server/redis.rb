@@ -10,8 +10,8 @@ module ActiveHook
 
     class ConnectionPool
       def self.create
-        ::ConnectionPool.new(size: ActiveHook::Server.config.redis_pool) do
-          Redis.new(url: ActiveHook::Server.config.redis_url)
+        ::ConnectionPool.new(size: Server.config.redis_pool) do
+          Redis.new(url: Server.config.redis_url)
         end
       end
     end

@@ -12,12 +12,12 @@ module ActiveHook
 
       def save
         return false unless valid?
-        save_hook
+        save_message
       end
 
       def save!
         raise Errors::Message, 'Message is invalid' unless valid?
-        save_hook
+        save_message
       end
 
       def payload=(payload)
@@ -76,10 +76,10 @@ module ActiveHook
       private
 
       def save_message
-        ActiveHook::Server.redis.with do |conn|
-          @id = conn.incr('ah:total_queued')
-          conn.lpush('ah:queue', to_json)
-          conn.zadd('ah:validation', @id, @key)
+        Server.redis.with do |conn|
+          @id = conn.incr("#{Server.config.queue_namespace}:total")
+          conn.lpush(Server.config.queue_namespace, to_json)
+          conn.zadd("#{Server.config.queue_namespace}:validations", @id, @key)
         end
       end
 

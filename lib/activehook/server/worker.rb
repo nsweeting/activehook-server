@@ -58,13 +58,13 @@ module ActiveHook
       # Information about the start process
       #
       def start_message
-        ActiveHook::Server.log.info("* Worker #{@id} started, pid: #{@pid}")
+        Server.log.info("* Worker #{@id} started, pid: #{@pid}")
       end
 
       # Information about the shutdown process
       #
       def shutdown_message
-        ActiveHook::Server.log.info("* Worker #{@id} shutdown, pid: #{@pid}")
+        Server.log.info("* Worker #{@id} shutdown, pid: #{@pid}")
       end
 
       # Validates our data before starting the worker.

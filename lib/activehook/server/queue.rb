@@ -28,7 +28,9 @@ module ActiveHook
       # Performs a 'blocking pop' on our redis queue list.
       #
       def retrieve_message
-        json = ActiveHook::Server.redis.with { |c| c.brpop('ah:queue') }
+        json = Server.redis.with do |c|
+          c.brpop(Server.config.queue_namespace)
+        end
         json.last if json
       end
     end
@@ -42,7 +44,7 @@ module ActiveHook
 
       def start
         @post.start
-        ActiveHook::Server.redis.with do |conn|
+        Server.redis.with do |conn|
           @post.success? ? message_success(conn) : message_failed(conn)
         end
       end
@@ -50,13 +52,13 @@ module ActiveHook
       private
 
       def message_success(conn)
-        conn.incr('ah:total_success')
+        conn.incr("#{Server.config.queue_namespace}:success")
       end
 
       def message_failed(conn)
-        conn.incr('ah:total_failed')
+        conn.incr("#{Server.config.queue_namespace}:failed")
         return unless @message.retry?
-        conn.zadd('ah:retry', @message.retry_at, @message.to_json)
+        conn.zadd(Server.config.retry_namespace, @message.retry_at, @message.to_json)
       end
     end
   end

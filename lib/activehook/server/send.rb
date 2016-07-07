@@ -4,7 +4,7 @@ module ActiveHook
       REQUEST_HEADERS = {
         "Content-Type" => "application/json",
         "Accept"       => "application/json",
-        "User-Agent"   => "ActiveHook/#{ActiveHook::Server::VERSION}"
+        "User-Agent"   => "ActiveHook/#{Server::VERSION}"
       }.freeze
 
       attr_accessor :message
@@ -60,9 +60,9 @@ module ActiveHook
       def log_status
         msg = "POST | #{uri} | #{status.upcase} #{response_time}"
         if status == :success
-          ActiveHook::Server.log.info(msg)
+          Server.log.info(msg)
         else
-          ActiveHook::Server.log.err(msg)
+          Server.log.err(msg)
         end
       end
 

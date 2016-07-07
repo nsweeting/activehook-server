@@ -23,11 +23,14 @@ module ActiveHook
         retry_threads: 1,
         redis_url: ENV['REDIS_URL'],
         redis_pool: 5,
-        signature_header: 'X-Webhook-Signature'
+        signature_header: 'X-Message-Signature',
+        queue_namespace: 'ah:v1:queue',
+        retry_namespace: 'ah:v1:retry'
       }.freeze
 
       attr_accessor :workers, :queue_threads, :retry_threads,
-                    :redis_url, :redis_pool, :signature_header
+                    :redis_url, :redis_pool, :signature_header,
+                    :queue_namespace, :retry_namespace
 
       def initialize
         DEFAULTS.each { |key, value| send("#{key}=", value) }
