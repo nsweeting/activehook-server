@@ -79,7 +79,6 @@ module ActiveHook
         Server.redis.with do |conn|
           @id = conn.incr("#{Server.config.queue_namespace}:total")
           conn.lpush(Server.config.queue_namespace, to_json)
-          conn.zadd("#{Server.config.queue_namespace}:validations", @id, @key)
         end
       end
 
