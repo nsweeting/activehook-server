@@ -12,12 +12,7 @@ module ActiveHook
 
       def save
         return false unless valid?
-        save_message
-      end
-
-      def save!
-        raise Errors::Message, 'Message is invalid' unless valid?
-        save_message
+        save_message ? true : false
       end
 
       def payload=(payload)
@@ -80,6 +75,9 @@ module ActiveHook
           @id = conn.incr("#{Server.config.queue_namespace}:total")
           conn.lpush(Server.config.queue_namespace, to_json)
         end
+      rescue
+        @errors.merge!(message: ['encountered server issues.'])
+        false
       end
 
       def defaults
